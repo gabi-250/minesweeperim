@@ -37,16 +37,24 @@ public class MineSweeperApplication extends Application {
     private MenuItem easy, medium, hard;
     private HBox hbox;
     private BorderPane borderPane;
+    private Scene scene;
+    private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("MineSweeper");
+        this.primaryStage = primaryStage;
         mineSweeper = new MineSweeper();
-        Scene scene = new Scene(getBoard());
+        initialize();
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void initialize() {
+        scene = new Scene(getBoard());
         createMenus();
         ((BorderPane)scene.getRoot()).setTop(menuBar);
         primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     private void createMenus() {
@@ -57,6 +65,40 @@ public class MineSweeperApplication extends Application {
         easy = new MenuItem("Easy");
         medium = new MenuItem("Medium");
         hard = new MenuItem("Hard");
+        easy.setOnAction(new EventHandler <ActionEvent> () {
+            @Override
+            public void handle(ActionEvent e) {
+                mineSweeper.setRows(10);
+                mineSweeper.setColumns(10);
+                mineSweeper.setMines(10);
+                mineSweeper.resetGame();
+                initialize();
+                repaintAll();
+            }
+        });
+        medium.setOnAction(new EventHandler <ActionEvent> () {
+            @Override
+            public void handle(ActionEvent e) {
+                mineSweeper.setRows(16);
+                mineSweeper.setColumns(16);
+                mineSweeper.setMines(40);
+                mineSweeper.resetGame();
+                initialize();
+                repaintAll();
+            }
+        });
+
+        hard.setOnAction(new EventHandler <ActionEvent> () {
+            @Override
+            public void handle(ActionEvent e) {
+                mineSweeper.setRows(30);
+                mineSweeper.setColumns(16);
+                mineSweeper.setMines(99);
+                mineSweeper.resetGame();
+                initialize();
+                repaintAll();
+            }
+        });
         menuDifficulty.getItems().addAll(easy, medium, hard);
         menuOptions.getItems().addAll(menuDifficulty);
         menuBar.getMenus().addAll(menuDifficulty);
@@ -94,8 +136,8 @@ public class MineSweeperApplication extends Application {
                 Platform.exit();
             }
         });
-        flagsLabel = new Label("0/" + MineSweeper.defaultMineCount + " flags");
-        cellsLabel = new Label("0/" + MineSweeper.defaultCellCount + " cells");
+        flagsLabel = new Label("0/" + mineSweeper.getMines() + " flags");
+        cellsLabel = new Label("0/" + mineSweeper.getRows() * mineSweeper.getColumns() + " cells");
         outcomeLabel = new Label("");
         hbox.getChildren().addAll(newButton, flagsLabel, cellsLabel,
                                   outcomeLabel, exitButton);
@@ -119,10 +161,9 @@ public class MineSweeperApplication extends Application {
         grid.setPadding(new Insets(15, 15, 15, 15));
         grid.setHgap(5);
         grid.setVgap(5);
-        buttons = new Button[MineSweeper.defaultRowCount][MineSweeper.defaultColumnCount];
-
-        for (int i = 0; i < MineSweeper.defaultRowCount; ++i) {
-            for (int j = 0; j < MineSweeper.defaultColumnCount; ++j) {
+        buttons = new Button[mineSweeper.getRows()][mineSweeper.getColumns()];
+        for (int i = 0; i < mineSweeper.getRows(); ++i) {
+            for (int j = 0; j < mineSweeper.getColumns(); ++j) {
 
                 buttons[i][j] = new ButtonCell(i, j);
                 buttons[i][j].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -167,7 +208,7 @@ public class MineSweeperApplication extends Application {
 
         repaintBoard();
         flagsLabel.setText(mineSweeper.getFlagged() + "/" +
-                           mineSweeper.getMineCount() + " flags");
+                           mineSweeper.getMines() + " flags");
         cellsLabel.setText(mineSweeper.getCellsExplored() + "/" +
                            mineSweeper.getTotalCells() + " cells");
         if (mineSweeper.gameOver()) {

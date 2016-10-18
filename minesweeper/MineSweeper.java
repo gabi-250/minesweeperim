@@ -123,6 +123,21 @@ public class MineSweeper {
         return columns;
     }
 
+    public int getMines() {
+        return mines;
+    }
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public void setColumns(int columns) {
+        this.columns = columns;
+    }
+
+    public void setMines(int mines) {
+        this.mines = mines;
+    }
+
 
     public boolean isExplored(int row, int column) {
 
