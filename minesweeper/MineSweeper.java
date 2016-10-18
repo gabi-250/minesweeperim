@@ -13,6 +13,11 @@ public class MineSweeper {
     private boolean gameOver;
     private boolean bomb;
 
+    public static final int defaultRowCount = 10;
+    public static final int defaultColumnCount = 10;
+    public static final int defaultMineCount = 10;
+    public static final int defaultCellCount = 100;
+
     public MineSweeper() {
 
         this(10, 10, 10);
@@ -109,6 +114,15 @@ public class MineSweeper {
 
         return cells.length * cells[0].length;
     }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
 
     public boolean isExplored(int row, int column) {
 

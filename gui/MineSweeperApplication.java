@@ -7,11 +7,15 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.Priority;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.geometry.Insets;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
@@ -28,27 +32,49 @@ public class MineSweeperApplication extends Application {
     private Label flagsLabel;
     private Label cellsLabel;
     private Label outcomeLabel;
+    private MenuBar menuBar;
+    private Menu menuDifficulty, menuOptions;
+    private MenuItem easy, medium, hard;
+    private HBox hbox;
+    private BorderPane borderPane;
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("MineSweeper");
-        Scene scene = new Scene(getBoard());
         mineSweeper = new MineSweeper();
+        Scene scene = new Scene(getBoard());
+        createMenus();
+        ((BorderPane)scene.getRoot()).setTop(menuBar);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void createMenus() {
+
+        menuBar = new MenuBar();
+        menuOptions = new Menu("Options");
+        menuDifficulty = new Menu("Difficulty");
+        easy = new MenuItem("Easy");
+        medium = new MenuItem("Medium");
+        hard = new MenuItem("Hard");
+        menuDifficulty.getItems().addAll(easy, medium, hard);
+        menuOptions.getItems().addAll(menuDifficulty);
+        menuBar.getMenus().addAll(menuDifficulty);
     }
 
     private BorderPane getBoard() {
 
         BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(createGridPane());
-        borderPane.setTop(createControlPane());
+        BorderPane innerBorderPane = new BorderPane();
+        innerBorderPane.setTop(createControlPane());
+        innerBorderPane.setCenter(createGridPane());
+        borderPane.setCenter(innerBorderPane);
         return borderPane;
     }
 
-    private HBox createControlPane() {
+    private BorderPane createControlPane() {
 
-        HBox hbox = new HBox(7);
+        hbox = new HBox(7);
         hbox.setPadding(new Insets(15, 5, 5, 15));
         newButton = new Button("New game");
         newButton.setOnAction(new EventHandler <ActionEvent> () {
@@ -68,8 +94,8 @@ public class MineSweeperApplication extends Application {
                 Platform.exit();
             }
         });
-        flagsLabel = new Label("0/10 flags");
-        cellsLabel = new Label("0/100 cells");
+        flagsLabel = new Label("0/" + MineSweeper.defaultMineCount + " flags");
+        cellsLabel = new Label("0/" + MineSweeper.defaultCellCount + " cells");
         outcomeLabel = new Label("");
         hbox.getChildren().addAll(newButton, flagsLabel, cellsLabel,
                                   outcomeLabel, exitButton);
@@ -83,8 +109,9 @@ public class MineSweeperApplication extends Application {
         hbox.setHgrow(cellsLabel, Priority.ALWAYS);
         hbox.setHgrow(outcomeLabel, Priority.ALWAYS);
         hbox.setHgrow(exitButton, Priority.ALWAYS);
-
-        return hbox;
+        borderPane = new BorderPane();
+        borderPane.setBottom(hbox);
+        return borderPane;
     }
 
     private GridPane createGridPane() {
@@ -92,10 +119,10 @@ public class MineSweeperApplication extends Application {
         grid.setPadding(new Insets(15, 15, 15, 15));
         grid.setHgap(5);
         grid.setVgap(5);
-        buttons = new Button[10][10];
+        buttons = new Button[MineSweeper.defaultRowCount][MineSweeper.defaultColumnCount];
 
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 10; ++j) {
+        for (int i = 0; i < MineSweeper.defaultRowCount; ++i) {
+            for (int j = 0; j < MineSweeper.defaultColumnCount; ++j) {
 
                 buttons[i][j] = new ButtonCell(i, j);
                 buttons[i][j].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -152,8 +179,8 @@ public class MineSweeperApplication extends Application {
     }
 
     private void repaintBoard() {
-         for (int row = 0; row < 10; ++row) {
-            for (int col = 0 ; col < 10; ++col) {
+         for (int row = 0; row < mineSweeper.getRows(); ++row) {
+            for (int col = 0 ; col < mineSweeper.getColumns(); ++col) {
                 buttons[row][col].setText(mineSweeper.getCellText(row, col));
             }
         }
