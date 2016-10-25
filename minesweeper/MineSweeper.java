@@ -200,7 +200,7 @@ public class MineSweeper {
 
         cells[row][column].explore();
         cellsExplored += 1;
-        gameOver |= (cellsExplored + flagged == cells.length * cells.length);
+        gameOver = (cellsExplored + flagged == cells.length * cells.length);
     }
 
     private boolean validMove(int row, int column) {

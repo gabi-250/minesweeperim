@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -18,6 +20,9 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 import minesweeper.MineSweeper;
+import java.net.URL;
+
+import java.io.File;
 
 public class MineSweeperApplication extends Application {
 
@@ -28,14 +33,32 @@ public class MineSweeperApplication extends Application {
     private Label flagsLabel;
     private Label cellsLabel;
     private Label outcomeLabel;
+    private ImageView WIN, LOSE, ON_GOING, BOMB;
 
     @Override
     public void start(Stage primaryStage) {
+        createImageViews();
         primaryStage.setTitle("MineSweeper");
         Scene scene = new Scene(getBoard());
         mineSweeper = new MineSweeper();
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void createImageViews() {
+
+        URL url = getClass().getResource("resources/win.png");
+        Image imageWin = new Image(url.toString());
+        WIN = new ImageView(imageWin);
+        url = getClass().getResource("resources/lose.png");
+        Image imageLose = new Image(url.toString());
+        LOSE = new ImageView(imageLose);
+        url = getClass().getResource("resources/on_going.png");
+        Image imageOnGoing = new Image(url.toString());
+        ON_GOING = new ImageView(imageOnGoing);
+        url = getClass().getResource("resources/bomb.png");
+        Image imageBomb = new Image(url.toString());
+        BOMB = new ImageView(imageBomb);
     }
 
     private BorderPane getBoard() {
@@ -70,7 +93,8 @@ public class MineSweeperApplication extends Application {
         });
         flagsLabel = new Label("0/10 flags");
         cellsLabel = new Label("0/100 cells");
-        outcomeLabel = new Label("");
+        outcomeLabel = new Label();
+        outcomeLabel.setGraphic(ON_GOING);
         hbox.getChildren().addAll(newButton, flagsLabel, cellsLabel,
                                   outcomeLabel, exitButton);
         newButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -144,17 +168,33 @@ public class MineSweeperApplication extends Application {
         cellsLabel.setText(mineSweeper.getCellsExplored() + "/" +
                            mineSweeper.getTotalCells() + " cells");
         if (mineSweeper.gameOver()) {
-            outcomeLabel.setText(mineSweeper.win() ? "Won" : "Lost");
+            outcomeLabel.setGraphic(mineSweeper.win() ? WIN : LOSE);
         }
         else {
-            outcomeLabel.setText("");
+            outcomeLabel.setGraphic(ON_GOING);
         }
     }
 
     private void repaintBoard() {
          for (int row = 0; row < 10; ++row) {
             for (int col = 0 ; col < 10; ++col) {
-                buttons[row][col].setText(mineSweeper.getCellText(row, col));
+                String text = mineSweeper.getCellText(row, col);
+                if(text.equals("X") && buttons[row][col].getGraphic() == null) {
+                    
+                    for (int row1 = 0; row1 < 10; ++row1) {
+                        for (int col1 = 0 ; col1 < 10; ++col1) {
+                            if(mineSweeper.getCellText(row1, col1).equals("X")) {
+                                buttons[row1][col1].setGraphic(BOMB);
+                                buttons[row1][col1].setText(null);
+                                BOMB.setFitHeight(10);
+                                BOMB.setFitWidth(10);
+                            }
+
+                        }
+                    }
+                }
+                else if(buttons[row][col].getGraphic() == null)
+                    buttons[row][col].setText(text);
             }
         }
     }
