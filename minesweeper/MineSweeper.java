@@ -39,6 +39,7 @@ public class MineSweeper {
         cellsExplored = 0;
         createCells(rows, columns);
         updateAdjacentMineCount();
+        GameTimer.start();
     }
 
     private void createCells(int rows, int columns) {
@@ -183,6 +184,8 @@ public class MineSweeper {
                     revealCell(row, column);
                     bomb = true;
                     gameOver = true;
+                    GameTimer.stop();
+                    System.out.println("**" + GameTimer.getElapsedTime());
                 }
             }
         }

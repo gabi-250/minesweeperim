@@ -22,6 +22,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 import minesweeper.MineSweeper;
+import minesweeper.GameTimer;
 
 public class MineSweeperApplication extends Application {
 
@@ -32,6 +33,7 @@ public class MineSweeperApplication extends Application {
     private Label flagsLabel;
     private Label cellsLabel;
     private Label outcomeLabel;
+    private Label timeLabel;
     private MenuBar menuBar;
     private Menu menuDifficulty, menuOptions;
     private MenuItem easy, medium, hard;
@@ -39,6 +41,7 @@ public class MineSweeperApplication extends Application {
     private BorderPane borderPane;
     private Scene scene;
     private Stage primaryStage;
+    private Thread timerThread;
 
     @Override
     public void start(Stage primaryStage) {
@@ -46,6 +49,20 @@ public class MineSweeperApplication extends Application {
         this.primaryStage = primaryStage;
         mineSweeper = new MineSweeper();
         initialize();
+        timerThread = new Thread() {
+            @Override
+            public void run() {
+                System.out.println(GameTimer.getCurrentTime());
+                //timeLabel.setText("" + GameTimer.getCurrentTime());
+                /*try {
+                    Thread.sleep(500);
+                }
+                catch (InterruptedException e) {
+                    System.out.println("Interrupted exception: " + e);
+               }*/
+            }
+        };
+        timerThread.start();
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -134,13 +151,16 @@ public class MineSweeperApplication extends Application {
             @Override
             public void handle(ActionEvent event) {
                 Platform.exit();
+                GameTimer.stop();
+                timerThread.stop();
             }
         });
         flagsLabel = new Label("0/" + mineSweeper.getMines() + " flags");
         cellsLabel = new Label("0/" + mineSweeper.getRows() * mineSweeper.getColumns() + " cells");
         outcomeLabel = new Label("");
+        timeLabel = new Label("0");
         hbox.getChildren().addAll(newButton, flagsLabel, cellsLabel,
-                                  outcomeLabel, exitButton);
+                                  outcomeLabel, exitButton, timeLabel);
         newButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         exitButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         outcomeLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
